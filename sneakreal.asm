@@ -101,7 +101,7 @@ LEN_CONFUSE_APPLE_STRING equ 41
 LEN_FAST_APPLE_STRING equ 45
 
 end_massage db "Your sneak,  score is $"
-credit 		db "Present by$"
+credit 		db "ASM Sec2 Project prepared by$"
 credit_one	db "Pattaraphol Weingkham 170-9$"
 credit_two	db "Gidtipong Capangnoi 147-7$"
 credit_three db "Kittipas Krapong 149-3$"
@@ -1062,9 +1062,10 @@ proc end_screen
 	call new_line
 
 	mov ax, offset credit
-	mov bl, CAYEN
-	mov cx,10
+	mov bl, YELLOW
+	mov cx,28
 	call print_with_color
+	call new_line
 	call new_line
 
 	mov ax, offset credit_one
@@ -1088,7 +1089,6 @@ proc end_screen
 	call new_line
 	call new_line
 	
-		
 	ret
 endp end_screen
 
