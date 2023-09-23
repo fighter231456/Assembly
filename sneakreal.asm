@@ -64,7 +64,7 @@ START_SLEEP_TIME equ 0ffffh
 random_x dw 0
 random_y dw 0
 
-POINT_OBJECT_SIZE equ 4 
+POINT_OBJECT_SIZE equ 4
 next_place_in_pos_history dw POINT_OBJECT_SIZE
 snake2_next_place_in_pos_history dw POINT_OBJECT_SIZE
 
@@ -75,7 +75,7 @@ DOWN_DIRECTION equ 1
 LEFT_DIRECTION equ 2
 RIGHT_DIRECTION equ 3
 
-start_message db "Welcome to the best game ever!$"
+start_message db "Welcome to sneak game by Fight Ohm Few$"
 how_many_players_are_playing db  "Enter how many players are playing? (1/2)$"
 
 special_apples db "********************SPECIAL APPLES********************$"
@@ -100,13 +100,17 @@ LEN_TRIPPLE_APPLE_STRING equ 33
 LEN_CONFUSE_APPLE_STRING equ 41
 LEN_FAST_APPLE_STRING equ 45
 
-end_massage db "NongFightGamimgJa,  score is $"
+end_massage db "Your sneak,  score is $"
+credit 		db "Present by$"
+credit_one	db "Pattaraphol Weingkham 170-9$"
+credit_two	db "Gidtipong Capangnoi 147-7$"
+credit_three db "Kittipas Krapong 149-3$"
 
 FALSE equ 0
 TRUE equ 1
 
 current_direction dw RIGHT_DIRECTION
-snake2_current_direction dw UP_DIRECTION
+snake2_current_direction dw RIGHT_DIRECTION
 
 left_onKeyboard db LEFT_KEYBOARD
 right_onKeyboard db RIGHT_KEYBOARD
@@ -230,7 +234,7 @@ proc move_snake
 	
 	mov ax,direction
 	cmp ax,LEFT_DIRECTION
-	je snake_left
+	je snake_left				;j if eq
 	cmp ax,RIGHT_DIRECTION
 	je snake_right
 	cmp ax,UP_DIRECTION
@@ -621,7 +625,7 @@ proc  play_music_sounds ;--- arguments offset of music_sounds
 	mov ax, [offset music_sounds + bx]	
 	out 42h,al
 	mov al,ah
-	out 42h,al
+	out 42h,al				; send I/O output
 	mov al,61h
 	mov al,11b
 	out 61h,al
@@ -653,7 +657,7 @@ proc erase_last_square
 	mov bl,[num_of_square]
 	mul bl
 	cmp ax,cx
-	jg num_of_square_bigger_then_next_place_in_pos_history
+	jg num_of_square_bigger_then_next_place_in_pos_history ;jump is greater
 	sub cx,ax
 
 	jmp skip_num_of_square_bigger_then_next_place_in_pos_history
@@ -868,7 +872,7 @@ proc open_screen
 	
 	mov ax, offset start_message
 	mov bl, CAYEN
-	mov cx,30
+	mov cx,38
 	call print_with_color
 	call new_line
 	
@@ -1028,13 +1032,13 @@ proc end_screen
 	call play_music_sounds
 	call return_to_text_mode
 	mov al,0
-	call mov_to_the_middle_of_the_screen
+	; call mov_to_the_middle_of_the_screen
 	mov dx, offset end_massage
 	mov ah, 9H
 	int 21H 
 	mov al,1
 	
-	call mov_to_the_middle_of_the_screen
+	; call mov_to_the_middle_of_the_screen
 	
 	;print num_of_square minus NUMBER_OF_START_SQUARE
 	sub [num_of_square],NUMBER_OF_START_SQUARE
@@ -1057,7 +1061,34 @@ proc end_screen
 	
 	call new_line
 
+	mov ax, offset credit
+	mov bl, CAYEN
+	mov cx,10
+	call print_with_color
+	call new_line
+
+	mov ax, offset credit_one
+	mov bl, CAYEN
+	mov cx,27
+	call print_with_color
+	call new_line
+	call new_line
+
+	mov ax, offset credit_two
+	mov bl, GREEN
+	mov cx,25
+	call print_with_color
+	call new_line
+	call new_line
+
+	mov ax, offset credit_three
+	mov bl, MAGNETA
+	mov cx,22
+	call print_with_color
+	call new_line
+	call new_line
 	
+		
 	ret
 endp end_screen
 

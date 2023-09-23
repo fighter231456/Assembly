@@ -1,31 +1,32 @@
+;Macro เรียกค่ามาใช้ได้ตลอด
+ConvertDecimal MACRO  decimal, printableDecimal ; แปลงค่า 
+	mov al,decimal ; ย้ายค่าไปเก็บไว้ al
+	xor ah, ah  ; รับค่า 
+	mov cl, 10 ; กำหนด cl เก็บ 10
+	div cl ; หาร al เป็นตัวตั้ง
+	add ax, 3030h ; ผลลัพธ์จาก al/cl
+	mov printableDecimal,ax ; นำ ax ส่งไป printableDecimal
+ENDM ConvertDecimal  ; จบ line คำสั่งแปลงฐาน
 
-ConvertDecimal MACRO  decimal, printableDecimal
-	mov al,decimal
-	xor ah, ah 
-	mov cl, 10 
-	div cl 
-	add ax, 3030h
-	mov printableDecimal,ax
-	
-ENDM ConvertDecimal  
 Print MACRO row, column, color 
-   push ax
+   push ax ; push เข้า stack
    push bx
    push cx
    push dx   
    
-   mov Ah, 02h
-   mov Bh, 0h
-   mov Dh, row
-   mov Dl, column
-   INT 10h 
-   mov Ah, 09
-   mov Al, ' '
-   mov Bl, color
+   mov Ah, 02h ;จองข้อมูลหน้าจอ
+   mov Bh, 0h ;เซ้ทหน้าจอ
+   mov Dh, row ;ผลลัพธ์เก็บไว้ที่ Dh
+   mov Dl, column 
+   INT 10h ; intเกี่ยวกับจอแสดงผล
+
+   mov Ah, 09 ; เซ็ทค่าพิมขึ้นจอ
+   mov Al, ' ' ; แสดงข้อความ
+   mov Bl, color ; ใช้ Bl กำหนดสีหน้าจอ
    mov Cx, 1h
-   INT 10h   
+   INT 10h  
    
-   pop dx
+   pop dx ;เอา stack ออก
    pop cx
    pop bx
    pop ax
@@ -42,8 +43,9 @@ PrintShooter MACRO column
    mov Dh, 24
    mov Dl, column
    INT 10h 
+
    mov Ah, 09
-   mov Al, 127  ;Arrow shape
+   mov Al, 127  ; แหลมลูกศร
    mov Bl, 02h
    mov Cx, 1h
    INT 10h   
@@ -52,6 +54,7 @@ PrintShooter MACRO column
    pop cx
    pop bx
    pop ax
+
 ENDM PrintShooter    
 
 PrintShot MACRO row, column
@@ -65,9 +68,10 @@ PrintShot MACRO row, column
    mov Dh, row
    mov Dl, column
    INT 10h 
-   mov Ah, 09
+
+   mov Ah, 09   ; สีกระสุนปืน
    mov Al, 254
-   mov Bl, 0Ch
+   mov Bl, 0Ch 
    mov Cx, 1h
    INT 10h   
    
@@ -75,6 +79,7 @@ PrintShot MACRO row, column
    pop cx
    pop bx
    pop ax
+
 ENDM PrintShot  
 
 PrintText Macro row , column , text
@@ -88,6 +93,7 @@ PrintText Macro row , column , text
    mov dl,column
    mov dh,row
    int 10h
+
    mov ah, 9
    mov dx, offset text
    int 21h
@@ -96,6 +102,7 @@ PrintText Macro row , column , text
    pop cx
    pop bx
    pop ax
+
 ENDM PrintText
 
 Delete Macro row, column
@@ -104,11 +111,13 @@ Delete Macro row, column
    mov Dh, row
    mov Dl, column
    int 10h 
+
    mov Ah, 09
    mov Al, ' '
    mov Bl, 0h
    mov Cx, 1h
    int 10h 
+
 ENDM Delete
 
 Delay  Macro Seconds, MilliSeconds
@@ -140,7 +149,7 @@ ClearScreen MACRO
     mov dh, 25     ;To dh=row
     int 10h    
     
-    ;Move cursor to the beginning of the screen 
+    ;ขยับเม้า
     mov ax, 0
     mov ah, 2
     mov dx, 0
@@ -178,25 +187,25 @@ ENDM ClearScreen
 
 
     RocketRow        db 15
-    RocketColor      db 0d0h
+    RocketColor      db 0d0h                                                                             ; สียานศัตรู
 
 
     ShooterCol       db 40
    
     ShotRow          db ?
     ShotCol          db ?
-    ShotStatus       db 0                                                                                ;1 means there exist a displayed shot, 0 otherwise
+    ShotStatus       db 0                                                                                ;สถานะกระสุน
 
     lifes            db 6
     Misses           db 0
-    Hits             db 0                                                                                ;Score
-    PlayerName       db 15, ?,  15 dup('$')
+    Hits             db 0                                                                                ;คะแนน
+    PlayerName       db 15, ?,  15 dup('$')                                                              ;กำหนดชื่อได้ไม่เกิน 15
     AskPlayerName    db 'Enter your name: ','$'
     Disp_Hits        db 'Score: ??','$'
     Disp_lifes       db 'lifes: ?','$'
     GameTitle        db ' >>  Shooting rockets Game  >> ','$'
     FinalScoreString db 'Your final score is: ??','$'
-    RocketDirection  db 0                                                                                ;0=Left, 1=Right
+    RocketDirection  db 0                                                                                ;0=ซ้าย, 1=ขวา
     EasyMode         db 'Easy Mode','$'
     HardMode         db 'Hard Mode','$'
     ExtremeMode      db 'Extreme Mode','$'
@@ -205,6 +214,23 @@ ENDM ClearScreen
     ;==================================================
 
 .CODE
+ResetGame PROC
+    ; รีเซ็ทค่าทั้งหมด
+                             mov            RocketColLeft, 0                          ; รีเซ็ท column
+                             mov            RocketColCenter, 1
+                             mov            RocketColRight, 2
+                             mov            RocketRow, 15
+                             mov            RocketColor, 0d0h
+                             mov            ShooterCol, 40
+                             mov            ShotRow, 0
+                             mov            ShotCol, 0
+                             mov            ShotStatus, 0
+                             mov            lifes, 6
+                             mov            Misses, 0
+                             mov            Hits, 0
+                             ret
+ResetGame ENDP
+
 MAIN PROC FAR
                              mov            ax, @DATA
                              mov            ds, ax
@@ -219,7 +245,7 @@ MAIN PROC FAR
   
     MainLoop:                
                              cmp            RocketDirection, 1
-                             jz             moveRocketRight
+                             jz             moveRocketRight                           ; j=0
                              call           RocketMoveLeft
                              jmp            AfterRocketMove
    
@@ -228,13 +254,13 @@ MAIN PROC FAR
    
     AfterRocketMove:         
                              cmp            ShotStatus, 1
-                             jnz            NoShotExist
-                             call           CheckShotStatus                           ;I'll see if the shotStatus alter to 0
+                             jnz            NoShotExist                               ; j!=0
+                             call           CheckShotStatus                           ;เช็คกระสุน
    
                              cmp            ShotStatus, 1
                              jnz            NoShotExist
                              call           MoveShot
-                             PrintShooter   ShooterCol                                ;since the shot deletes the shooter at the beginning
+                             PrintShooter   ShooterCol                                ;ยิงแล้วยานจะขยับไม่ได้
    
     NoShotExist:             
                              mov            ah,1h
@@ -247,7 +273,7 @@ MAIN PROC FAR
    
     EndOfMainLoop:           
                              jmp            MainLoop
-                             hlt
+                             hlt                                                      ; รอการสั่งคำสั่งถัดไป
 MAIN ENDP
 
     ;==================================================
@@ -306,34 +332,34 @@ KeyisPressed Proc
                              mov            ah,0
                              int            16h
 
-                             cmp            ah,4bh                                    ;Move Shooter Left if left button is pressed
+                             cmp            ah,4bh                                    ;ขยับยานตัวตัวเองกดลูกศรซ้าย
                              jnz            NotLeftKey
                              call           MoveShooterLeft
                              jmp            EndofKeyisPressed
 	
     NotLeftKey:              
                              cmp            ah,4dh
-                             jnz            NotRightKey                               ;Move Shooter Right if Right button is pressed
+                             jnz            NotRightKey                               ;ขยับไปทางขวาถ้ากดปุ่มลูกศรขวา
                              call           MoveShooterRight
                              jmp            EndofKeyisPressed
 	
     NotRightKey:             
-                             cmp            ah,1H                                     ;Esc to exit the game
+                             cmp            ah,1H                                     ;esc ออก
 
                              Jnz            NotESCKey
                              call           Gameover
 		
     NotESCKey:               
-                             cmp            ah,39h                                    ;go spaceKey if up button is pressed
+                             cmp            ah,39h                                    ;กดปุ่ม spacebar
 
                              jnz            EndofKeyisPressed
                              cmp            ShotStatus, 1
                              jz             EndofKeyisPressed
-                             mov            al,1                                      ;intialize a new shot
+                             mov            al,1                                      ;พร้อมยิงอีกครั้ง
                              mov            ShotStatus,1
                              mov            al, ShooterCol
                              mov            ShotCol, al
-                             mov            al, 24                                    ;it will be decremented in the new MainLoop
+                             mov            al, 24                                    ;จะถูกส่งไปที่ Mainloop
                              mov            ShotRow,al
 			
     EndofKeyisPressed:       
@@ -344,10 +370,10 @@ KeyisPressed ENDP
 MoveShooterLeft Proc
                              cmp            ShooterCol, 0
                              JZ             NoMoveLeft
-                             dec            ShooterCol
+                             dec            ShooterCol                                ; ลดค่าไป 1
                              PrintShooter   ShooterCol
                              mov            al, ShooterCol
-                             inc            al
+                             inc            al                                        ; เพิ่มค่ามา1
                              delete         24, al
     NoMoveLeft:              
                              ret
@@ -381,10 +407,10 @@ CheckShotStatus Proc
                              push           ax
 	
                              mov            ah,RocketRow
-                             inc            ah                                        ;Checking the row I {WILL} draw the shot in if occupied by a rocket
+                             inc            ah                                        ;ตรวจสอบหากถูกยิง
                              cmp            ah, ShotRow
                              JNZ            CheckEndRange
-    ;Check if it was a hit
+    ;เช็คเมื่อยิงโดน
                              mov            al,ShotCol
                              cmp            al, RocketColLeft
                              JZ             Hit
@@ -407,7 +433,7 @@ CheckShotStatus Proc
 		
     ;==================================================
     CheckEndRange:           
-                             cmp            ShotRow, 2                                ;It stops while printed on the number of row I put here
+                             cmp            ShotRow, 2                                ;จะหยุดเมื่อถึงRow
                              jnz            noChange
                              dec            Lifes
                              cmp            lifes, 0
@@ -435,14 +461,14 @@ Difficulty Proc
                              cmp            Hits, 10
                              jle            HardGame
                              Delay          0,10000
-                             PrintText      0, 67, ExtremeMode                        ;Extreme Mode when 10<Hits
+                             PrintText      0, 67, ExtremeMode                        ;Extreme Mode เมื่อ <10
                              jmp            EndDifficulty
 	
-    HardGame:                Delay          0,20000                                   ;Hard Mode when 10<=Hits<5
+    HardGame:                Delay          0,20000                                   ;Hard Mode เมื่อยิง => 10 & > 5
                              PrintText      0, 70, HardMode
                              jmp            EndDifficulty
 	
-    EasyGame:                Delay          1,0                                       ;Easy Mode when Hits<=5
+    EasyGame:                Delay          1,0                                       ;Easy Mode ยิงโดนต่ำกว่า 5
     EndDifficulty:           
                              ret
 Difficulty ENDP
@@ -463,17 +489,17 @@ RandomiseRocketRow Proc
    
     ; Range of row= [5,24]
                              mov            ah, 2ch
-                             int            21h                                       ; get system time where DH = second   Dl=MilliSeconds
+                             int            21h                                       ;รับค่าเวลา DH = second   Dl=MilliSeconds
                              xor            ax, ax
                              mov            al, dl
-                             mov            bl, 20                                    ; That limits the remainder to be [0,19]
+                             mov            bl, 20                                    ; หาค่า[0-19]
                              div            bl
-                             add            ah, 3                                     ;The range would be= [3,22]
+                             add            ah, 3                                     ;ผลลัพธ์จะอยู่ช่วง 3-22
                              mov            RocketRow, ah
    
     ;Change the color of rocket
     NotBlack:                
-                             add            RocketColor ,10h                          ;Add one to background color
+                             add            RocketColor ,10h                          ;ตรวจสอบสียาน
                              mov            ah, RocketColor
                              and            ah, 10h
                              cmp            ah ,00h
@@ -512,13 +538,13 @@ RandomiseRocketDirection Proc
                              push           ax
                              push           bx
                              push           cx
-                             push           dx
+                             push           dx                                        ;รักษาค่าคงที่ของstackเอาไว้
 
-                             mov            ah, 2ch
-                             int            21h                                       ; get system time where DH = second   Dl=MilliSeconds
+                             mov            ah, 2ch                                   ;โหลดระบบค่าเวลา เข้า ah
+                             int            21h                                       ; DH = second   Dl=MilliSeconds
                              xor            ax, ax
                              mov            al, dl
-                             mov            bl, 2                                     ;That limits the remainder to be [0,1]
+                             mov            bl, 2                                     ;ผลลัพธ์เลขคู่ 0=ซ้าย คี่ 1=ขวา โดยนำไปหาร 2
                              div            bl
                              mov            RocketDirection,ah
 
@@ -550,15 +576,15 @@ StartMenu Proc
     LoopOnName:              
                              PrintText      8,8,AskPlayerName
 
-    ;Receive player name from the user
+    ;รับค่าชื่อผู้เล่น
                              mov            ah, 0Ah
                              mov            dx, offset PlayerName
                              int            21h
 
-                             cmp            PlayerName[1], 0                          ;Check that input is not empty
+                             cmp            PlayerName[1], 0                          ;เช็คว่าได้ใส่ชื่อหรือไม่
                              jz             LoopOnName
 
-    ;Checks on the first letter to ensure that it's either a capital letter or a small letter
+    ;เช็คตัวอักษรตัวเล็กตัวใหญ่
                              cmp            PlayerName[2], 40h
                              jbe            LoopOnName
                              cmp            PlayerName[2], 7Bh
@@ -574,9 +600,8 @@ StartMenu Proc
                              ClearScreen
                              PrintText      1,1,StartScreen
 
-    ;hide curser
+    ;ซ่อนเม้าส์
                              mov            ah,01h
-    ;If bit 5 of CH is set, that often means "Hide cursor". So CX=2607h is an invisible cursor.
                              mov            cx,2607h
                              int            10h
 
@@ -604,17 +629,25 @@ StartMenu Proc
                              RET
 StartMenu ENDP
     ;==================================================
+
+
 Gameover Proc
                              ClearScreen
-
+                             
                              PrintText      1, 30, PlayerName
                              PrintText      3, 25,FinalScoreString
                              PrintText      5, 5 ,GameoverScreen
+                             mov            AH,0
+                             int            16H
 
- 
+                             cmp            al,13
+                             call           ResetGame
+                             call           MAIN
+
                              mov            ah,4CH
                              int            21H
                              ret
+                        
 Gameover ENDP
     ;==================================================
 DrawInterface Proc
@@ -623,7 +656,7 @@ DrawInterface Proc
                              push           cx
                              push           dx
 	
-    ;Go to the line beginning
+    ;กลับไปโค้ดด้านบน
 	
                              mov            al, 0
                              mov            cx, 80
