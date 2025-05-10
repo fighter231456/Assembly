@@ -22,7 +22,7 @@ Print MACRO row, column, color
 
    mov Ah, 09 ; เซ็ทค่าพิมขึ้นจอ
    mov Al, ' ' ; แสดงข้อความ
-   mov Bl, color ; ใช้ Bl กำหนดสีหน้าจอ
+   mov Bl, color ; ใช้ Bl กำหนดสี
    mov Cx, 1h
    INT 10h  
    

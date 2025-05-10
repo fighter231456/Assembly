@@ -124,10 +124,10 @@ proc print_dot
 	y equ [bp+6]
 	color equ [bp+4]
 	
-	push bp
-	mov bp, sp
+	push bp ;ดันค่า bp
+	mov bp, sp ;ให้ sp ไปค่าที่ bp
 	
-	push cx
+	push cx 
 	
 	mov bh,0h
 	mov cx,x
@@ -1005,9 +1005,9 @@ endp return_to_text_mode
 
 
 proc print_with_color
-	;ax <--- offset of the String
-	;bl <--- color 
-	;cx <--- number of chars
+	;ax <--- offset of the String 	offset + คำที่เลือกไว้
+	;bl <--- color เลือกสี
+	;cx <--- number of chars นับตัวอักษร
 	mov dx,ax
 	mov ah, 9
 
@@ -1128,9 +1128,9 @@ start:
 		loop sleep_for_apples_gap
 		
 	
-	call generate_apple
-	skip_2_apples:
-	call game_loop
+	call generate_apple	;เรียกคำสั่ง
+	skip_2_apples:		
+	call game_loop 
 	call end_screen
 	
 	exit:

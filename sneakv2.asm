@@ -12,7 +12,7 @@
 	; player
 	player_score_label_offset equ (screen_hight*screen_width-1d)*2d
 	player_score db ?
-	player_win_score equ 0FFh
+	player_win_score equ 5
 	; snake
 	; len X 2
 	snake_len dw ?
@@ -123,12 +123,12 @@ CHECK_SNAKE_NOOSE proc near
 	mov si,2h
 	CHECK_SNAKE_NOOSE_LOOP:
 		; if ax == snake body[si] its game over
-		cmp ax,snake_body[si]
-		jz CHECK_SNAKE_NOOSE_GAME_OVER
+		cmp ax,snake_body[si] ; 0
+		jz CHECK_SNAKE_NOOSE_GAME_OVER ;jump is zero
 		; next iteration
 		add si,2h
 		cmp si,snake_len
-		jnz CHECK_SNAKE_NOOSE_LOOP
+		jnz CHECK_SNAKE_NOOSE_LOOP ; jump is not zero != 0
 
 	jmp END_CHECK_SNAKE_NOOSE
 
@@ -454,6 +454,7 @@ PRINT_PLAYER_SCORE proc near
 	pop ax
 	ret
 PRINT_PLAYER_SCORE endp
+
 INIT_SCREEN proc near
 	push ax
 	push cx
